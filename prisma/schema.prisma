@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  role      String
+  createdAt DateTime @default(now())
+}
+
+model Guest {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  createdAt   DateTime  @default(now())
+  accessCodes AccessCode[] @relation("GuestAccessCodes", onDelete: Cascade)
+  logs        Logs[]       @relation("GuestLogs", onDelete: Cascade)
+}
+
+model AccessCode {
+  id        Int      @id @default(autoincrement())
+  guestId   Int
+  code      String
+  expiredAt DateTime?
+  createdAt DateTime @default(now())
+  guest     Guest    @relation("GuestAccessCodes", fields: [guestId], references: [id])
+}
+
+model Logs {
+  id        Int      @id @default(autoincrement())
+  guestId   Int
+  accessCode String
+  createdAt DateTime @default(now())
+  guest     Guest    @relation("GuestLogs", fields: [guestId], references: [id])
+}
