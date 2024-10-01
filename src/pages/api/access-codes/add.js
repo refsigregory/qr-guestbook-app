@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { generateUniqueAccessCode } from '@/utils/accessCodeGenerator';
 
 const prisma = new PrismaClient();
 
@@ -9,7 +10,7 @@ export default async function handler(req, res) {
     const newAccessCode = await prisma.accessCode.create({
       data: {
         guestId,
-        code,
+        code: code || generateUniqueAccessCode(),
       },
     });
 

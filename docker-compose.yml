@@ -4,7 +4,7 @@ services:
   app:
     build: .
     ports:
-      - '3000:3000'
+      - '51000:3000'
     environment:
       DATABASE_URL: ${DATABASE_URL}
     depends_on:
@@ -20,7 +20,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - '5432:5432'
+      - '5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

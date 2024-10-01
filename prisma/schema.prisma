@@ -20,8 +20,8 @@ model Guest {
   name        String
   description String
   createdAt   DateTime  @default(now())
-  accessCodes AccessCode[] @relation("GuestAccessCodes", onDelete: Cascade)
-  logs        Logs[]       @relation("GuestLogs", onDelete: Cascade)
+  accessCodes AccessCode[]
+  logs        Logs[]
 }
 
 model AccessCode {
@@ -30,7 +30,7 @@ model AccessCode {
   code      String
   expiredAt DateTime?
   createdAt DateTime @default(now())
-  guest     Guest    @relation("GuestAccessCodes", fields: [guestId], references: [id])
+  guest     Guest    @relation(fields: [guestId], references: [id])
 }
 
 model Logs {
@@ -38,5 +38,5 @@ model Logs {
   guestId   Int
   accessCode String
   createdAt DateTime @default(now())
-  guest     Guest    @relation("GuestLogs", fields: [guestId], references: [id])
+  guest     Guest    @relation(fields: [guestId], references: [id])
 }

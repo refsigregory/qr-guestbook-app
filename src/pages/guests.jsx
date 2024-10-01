@@ -26,8 +26,14 @@ function Guests() {
     await Promise.all(guestList.map(async (guest) => {
       const codes = guest.accessCodes.map(ac => ac.code); // Get access codes for QR generation
       if (codes.length > 0) {
-        const qrCode = await QRCode.toDataURL(codes.join('\n')); // Generate QR code for all access codes
-        urls[guest.id] = qrCode; // Map guest ID to QR code URL
+          let qrs = [];
+         codes.map(async (code, index) => {
+            if (code) {
+                const qrCode = await QRCode.toDataURL(code);
+                qrs.push(qrCode); 
+            }
+         })
+         urls[guest.id] = qrs;
       }
     }));
     setQrCodeUrls(urls);
@@ -78,7 +84,7 @@ function Guests() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ guestId, code: newAccessCode }),
+      body: JSON.stringify({ guestId }),
     });
 
     if (res.ok) {
@@ -103,10 +109,10 @@ function Guests() {
     }
   };
 
-  const downloadQRCode = (url) => {
+  const downloadQRCode = (url, name) => {
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'qrcode.png'; // Name of the downloaded file
+    a.download = `qrcode-${name}.png`; // Name of the downloaded file
     a.click();
   };
 
@@ -155,12 +161,12 @@ function Guests() {
                 {guest.accessCodes.length === 0 ? (
                   <div>No access codes found for this guest.</div>
                 ) : (
-                  guest.accessCodes.map((accessCode) => (
+                  guest.accessCodes.map((accessCode, index) => (
                     <div key={accessCode.id} className="flex justify-between">
                       <span>QR Code for Access Code</span>
                       <div>
-                        <img src={qrCodeUrls[guest.id]} alt="QR Code" className="mb-2" />
-                        <button onClick={() => downloadQRCode(qrCodeUrls[guest.id])} className="bg-gray-500 text-white p-2 rounded mt-2">
+                        <img src={qrCodeUrls[guest.id][index]} alt="QR Code" className="mb-2" />
+                        <button onClick={() => downloadQRCode(qrCodeUrls[guest.id][index], `${guest.name}(${index})`)} className="bg-gray-500 text-white p-2 rounded mt-2">
                           Download QR Code
                         </button>
                         <button onClick={() => handleDeleteAccessCode(accessCode.id)} className="text-red-500 ml-2">Delete</button>
@@ -168,15 +174,8 @@ function Guests() {
                     </div>
                   ))
                 )}
-                <input
-                  type="text"
-                  placeholder="New Access Code"
-                  value={newAccessCode}
-                  onChange={(e) => setNewAccessCode(e.target.value)}
-                  className="border p-2 mt-2 w-full"
-                />
                 <button onClick={() => handleAddAccessCode(guest.id)} className="bg-green-500 text-white p-2 rounded mt-2">
-                  Add Access Code
+                  Add
                 </button>
               </div>
             </li>
