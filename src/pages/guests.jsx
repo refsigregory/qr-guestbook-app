@@ -28,14 +28,13 @@ function Guests() {
     await Promise.all(guestList?.map(async (guest) => {
       const codes = guest.accessCodes.map(ac => ac.code); // Get access codes for QR generation
       if (codes.length > 0) {
-          let qrs = [];
-         codes.map(async (code, index) => {
-            if (code) {
-                const qrCode = await QRCode.toDataURL(code);
-                qrs.push(qrCode); 
-            }
-         })
-         urls[guest.id] = qrs;
+        const qrs = await Promise.all(codes.map(async (code) => {
+          if (code) {
+            const qrCode = await QRCode.toDataURL(code);
+            return qrCode; 
+          }
+        }));
+        urls[guest.id] = qrs;
       }
     }));
     setQrCodeUrls(urls);
@@ -57,8 +56,8 @@ function Guests() {
       setDescription('');
       
       if (isEdit) {
-          setIsEdit(false);
-          setSelectedID(null);
+        setIsEdit(false);
+        setSelectedID(null);
       }
     } else {
       const error = await res.json();
@@ -118,11 +117,38 @@ function Guests() {
     }
   };
 
-  const downloadQRCode = (url, name) => {
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `qrcode-${name}.png`; // Name of the downloaded file
-    a.click();
+  const downloadInvitation = async (guest) => {
+    const templateImg = '/assets/template.png'; // Path to your template image
+    const qrCodeUrl = qrCodeUrls[guest.id]?.[0]; // Assuming you want the first QR code
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const template = new Image();
+    const qrCodeImage = new Image();
+
+    // Set canvas size (adjust as needed)
+    canvas.width = 500; // Template width
+    canvas.height = 500; // Template height
+
+    template.src = templateImg;
+    qrCodeImage.src = qrCodeUrl;
+
+    template.onload = () => {
+      ctx.drawImage(template, 0, 0); // Draw template
+      qrCodeImage.onload = () => {
+        ctx.drawImage(qrCodeImage, 50, 100, 150, 150); // Position and size of the QR code
+        ctx.font = '30px Arial';
+        ctx.fillStyle = 'black'; // Text color
+        ctx.fillText(guest.name, 50, 300); // Position of the guest's name
+
+        // Download the canvas as an image
+        const link = document.createElement('a');
+        link.download = `invitation-${guest.name}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      };
+    };
   };
 
   return (
@@ -154,7 +180,7 @@ function Guests() {
         {guests?.length === 0 ? (
           <li className="border p-2 mb-2">No guests found. Please add a guest.</li>
         ) : (
-          guests?.map((guest) => (
+          guests.map((guest) => (
             <li key={guest.id} className="border p-2 mb-2 flex flex-col">
               <div className="flex justify-between">
                 <div>
@@ -173,9 +199,12 @@ function Guests() {
                   guest.accessCodes.map((accessCode, index) => (
                     <div key={accessCode.id} className="flex justify-between">
                       <div>
-                        <img src={qrCodeUrls[guest.id][index]} alt="QR Code" className="mb-2" />
-                        <button onClick={() => downloadQRCode(qrCodeUrls[guest.id][index], `${guest.name}(${index})`)} className="bg-gray-500 text-white p-2 rounded mt-2">
-                          Download QR Code
+                        <img src={qrCodeUrls[guest.id]?.[index]} alt="QR Code" className="mb-2" />
+                        <button 
+                          onClick={() => downloadInvitation(guest)} 
+                          className="bg-gray-500 text-white p-2 rounded mt-2"
+                        >
+                          Download Invitation
                         </button>
                         <button onClick={() => handleDeleteAccessCode(accessCode.id)} className="text-red-500 ml-2">Delete QR Code</button>
                       </div>
