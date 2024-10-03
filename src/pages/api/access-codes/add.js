@@ -1,20 +1,20 @@
-import { PrismaClient } from '@prisma/client';
-import { generateUniqueAccessCode } from '@/utils/accessCodeGenerator';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
+import { generateUniqueAccessCode } from '@/utils/accessCodeGenerator'; 
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { guestId, code } = req.body;
+    const { guestId, code: accessCode } = req.body;
 
     const newAccessCode = await prisma.accessCode.create({
       data: {
         guestId,
-        code: code || generateUniqueAccessCode(),
+        code: accessCode || generateUniqueAccessCode(),
       },
     });
 
-    return res.status(201).json(newAccessCode);
+    return res.status(201).json({
+        "message": "Success adding new single acces code"
+    });
   } else {
     res.setHeader('Allow', ['POST']);
     res.status(405).end(`Method ${req.method} Not Allowed`);

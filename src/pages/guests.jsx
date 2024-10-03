@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 
 function Guests() {
+  const [selectedID, setSelectedID] = useState(null);
+  const [isEdit, setIsEdit] = useState(false);
   const [guests, setGuests] = useState([]);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -17,13 +19,13 @@ function Guests() {
   const fetchGuests = async () => {
     const res = await fetch('/api/guests');
     const data = await res.json();
-    setGuests(data);
-    generateQRCodes(data); // Generate QR codes when guests are fetched
+    setGuests(data?.data);
+    generateQRCodes(data?.data); // Generate QR codes when guests are fetched
   };
 
   const generateQRCodes = async (guestList) => {
     const urls = {};
-    await Promise.all(guestList.map(async (guest) => {
+    await Promise.all(guestList?.map(async (guest) => {
       const codes = guest.accessCodes.map(ac => ac.code); // Get access codes for QR generation
       if (codes.length > 0) {
           let qrs = [];
@@ -41,8 +43,8 @@ function Guests() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await fetch('/api/guests/add', {
-      method: 'POST',
+    const res = await fetch(`/api/guests/${isEdit ? selectedID : 'add'}`, {
+      method: isEdit ? 'PUT' : 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -53,6 +55,11 @@ function Guests() {
       fetchGuests(); // Refresh guests after adding
       setName('');
       setDescription('');
+      
+      if (isEdit) {
+          setIsEdit(false);
+          setSelectedID(null);
+      }
     } else {
       const error = await res.json();
       alert(error.message || 'Failed to add guest');
@@ -60,7 +67,9 @@ function Guests() {
   };
 
   const handleEdit = (guest) => {
+    setIsEdit(true);
     setEditingGuest(guest);
+    setSelectedID(guest.id);
     setName(guest.name);
     setDescription(guest.description);
   };
@@ -137,15 +146,15 @@ function Guests() {
           required
         />
         <button type="submit" className="bg-blue-500 text-white p-2 rounded w-full">
-          Add Guest
+          {isEdit ? 'Save' : 'Add'}
         </button>
       </form>
 
       <ul className="mt-4">
-        {guests.length === 0 ? (
+        {guests?.length === 0 ? (
           <li className="border p-2 mb-2">No guests found. Please add a guest.</li>
         ) : (
-          guests.map((guest) => (
+          guests?.map((guest) => (
             <li key={guest.id} className="border p-2 mb-2 flex flex-col">
               <div className="flex justify-between">
                 <div>
@@ -163,19 +172,18 @@ function Guests() {
                 ) : (
                   guest.accessCodes.map((accessCode, index) => (
                     <div key={accessCode.id} className="flex justify-between">
-                      <span>QR Code for Access Code</span>
                       <div>
                         <img src={qrCodeUrls[guest.id][index]} alt="QR Code" className="mb-2" />
                         <button onClick={() => downloadQRCode(qrCodeUrls[guest.id][index], `${guest.name}(${index})`)} className="bg-gray-500 text-white p-2 rounded mt-2">
                           Download QR Code
                         </button>
-                        <button onClick={() => handleDeleteAccessCode(accessCode.id)} className="text-red-500 ml-2">Delete</button>
+                        <button onClick={() => handleDeleteAccessCode(accessCode.id)} className="text-red-500 ml-2">Delete QR Code</button>
                       </div>
                     </div>
                   ))
                 )}
                 <button onClick={() => handleAddAccessCode(guest.id)} className="bg-green-500 text-white p-2 rounded mt-2">
-                  Add
+                  Add Access Code
                 </button>
               </div>
             </li>

@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -19,7 +17,7 @@ export default async function handler(req, res) {
       });
 
       if (!foundCode) {
-        return res.status(404).json({ error: 'Access code not found or expired.' });
+        return res.status(404).json({ error: 'Maaf, QR Code anda tidak terdaftar.' });
       }
 
       // Log the access (you may want to adjust this part)

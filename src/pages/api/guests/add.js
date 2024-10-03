@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { generateUniqueAccessCode } from '@/utils/accessCodeGenerator'; // Ensure this function exists
-
-const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -31,7 +29,9 @@ export default async function handler(req, res) {
         data: accessCodes,
       });
 
-      return res.status(201).json(guest);
+      return res.status(201).json({
+          "message": "Access code created"
+      });
     } catch (error) {
       console.error('Error creating guest or access codes:', error); // Log the error for debugging
       return res.status(500).json({ error: 'Failed to create guest and access codes' });

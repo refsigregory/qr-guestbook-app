@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(req, res) {
   const { id } = req.query;
@@ -17,6 +15,17 @@ export default async function handler(req, res) {
 
       return res.status(200).json(updatedGuest);
     } else if (req.method === 'DELETE') {
+        
+      const accessCode = await prisma.accessCode.findMany({
+        where: { guestId: parseInt(id) },
+      });
+      
+      accessCode?.map(async (obj) => {
+          await prisma.accessCode.delete({
+        where: { id: parseInt(obj.id) }
+      })
+      });
+      
       // Delete the guest
       await prisma.guest.delete({
         where: { id: parseInt(id) },

@@ -1,7 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { generateUniqueAccessCode } from '@/utils/accessCodeGenerator'; // Ensure this function exists
 
-const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
@@ -9,9 +8,16 @@ export default async function handler(req, res) {
       const guests = await prisma.guest.findMany({
         include: { accessCodes: true }, // Include access codes
       });
-      res.status(200).json(guests);
+      res.status(200).json({
+          message: "Succes to fetch guests",
+          data: guests,
+      });
     } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch guests' });
+      res.status(500).json({
+          error: true,
+          message: 'Failed to fetch guests',
+          data: []
+      });
     }
   } else if (req.method === 'POST') {
     const { name, description } = req.body;
@@ -41,7 +47,10 @@ export default async function handler(req, res) {
 
       res.status(201).json(newGuest);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to create guest and access codes' });
+      res.status(500).json({
+          error: true,
+          message: 'Failed to create guest and access codes'
+      });
     }
   } else if (req.method === 'PUT') {
     const { guestId, code } = req.body;
@@ -56,7 +65,10 @@ export default async function handler(req, res) {
 
       res.status(201).json(newAccessCode);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to create access code' });
+      res.status(500).json({ 
+          error: true,
+          message: 'Failed to create access code'
+      });
     }
   } else {
     res.setHeader('Allow', ['GET', 'POST', 'PUT']);
