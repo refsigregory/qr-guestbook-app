@@ -13,7 +13,8 @@ export default async function handler(req, res) {
     });
 
     return res.status(201).json({
-        "message": "Success adding new single acces code"
+        message: "Success adding new single acces code",
+        data: newAccessCode,
     });
   } else {
     res.setHeader('Allow', ['POST']);

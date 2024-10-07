@@ -17,11 +17,15 @@ export default async function handler(req, res) {
       });
 
       if (!foundCode) {
-        return res.status(404).json({ error: 'Maaf, QR Code anda tidak terdaftar.' });
+        return res.status(404).json({
+          error: 'Maaf, QR Code anda tidak terdaftar.', // TODO: depercated field, delete if build debug2 not used
+          message: 'Maaf, QR Code anda tidak terdaftar.',
+         });
       }
 
       // Log the access (you may want to adjust this part)
       const log = await prisma.logs.create({
+        message: 'Add logs succesfully',
         data: {
           guestId: foundCode.guestId,
           accessCode: foundCode.code,
@@ -31,7 +35,7 @@ export default async function handler(req, res) {
       return res.status(201).json({ log, guest: foundCode.guest });
     } catch (error) {
       console.error('Error fetching access code:', error);
-      return res.status(500).json({ error: 'Failed to log access' });
+      return res.status(500).json({ message: 'Failed to log access' });
     }
   } else {
     res.setHeader('Allow', ['POST']);

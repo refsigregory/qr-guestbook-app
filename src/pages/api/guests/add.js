@@ -34,7 +34,9 @@ export default async function handler(req, res) {
       });
     } catch (error) {
       console.error('Error creating guest or access codes:', error); // Log the error for debugging
-      return res.status(500).json({ error: 'Failed to create guest and access codes' });
+      return res.status(500).json({
+        message: 'Failed to create guest and access codes'
+      });
     }
   }
 

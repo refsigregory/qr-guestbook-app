@@ -42,13 +42,13 @@ export default async function handler(req, res) {
       }
 
       await prisma.accessCode.createMany({
+        message: "Create guest successfully",
         data: accessCodes,
       });
 
       res.status(201).json(newGuest);
     } catch (error) {
       res.status(500).json({
-          error: true,
           message: 'Failed to create guest and access codes'
       });
     }
@@ -66,7 +66,6 @@ export default async function handler(req, res) {
       res.status(201).json(newAccessCode);
     } catch (error) {
       res.status(500).json({ 
-          error: true,
           message: 'Failed to create access code'
       });
     }

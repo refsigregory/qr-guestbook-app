@@ -13,7 +13,10 @@ export default async function handler(req, res) {
         data: { name, description },
       });
 
-      return res.status(200).json(updatedGuest);
+      return res.status(200).json({
+        message: "Update guest succesfully",
+        data: updatedGuest,
+      });
     } else if (req.method === 'DELETE') {
         
       const accessCode = await prisma.accessCode.findMany({
@@ -41,8 +44,10 @@ export default async function handler(req, res) {
     console.error(error); // Log the error for debugging
     if (error.code === 'P2025') {
       // Record not found
-      return res.status(404).json({ error: 'Guest not found' });
+      return res.status(404).json({
+        message: 'Guest not found'
+      });
     }
-    return res.status(500).json({ error: 'An unexpected error occurred' });
+    return res.status(500).json({ message: 'An unexpected error occurred' });
   }
 }
