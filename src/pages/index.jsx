@@ -15,6 +15,8 @@ export default function Home() {
   const handleLogout = () => {
       localStorage.removeItem('token');
       setLogin(false);
+      
+      window.location.reload();
   };
   
   return (

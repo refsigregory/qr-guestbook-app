@@ -13,7 +13,7 @@ export default async function handler(req, res) {
       });
     } catch (error) {
       console.error('Error fetching logs:', error);
-      res.status(500).json({ error: 'Failed to fetch logs' });
+      res.status(500).json({ message: 'Failed to fetch logs' });
     }
   } else {
     res.setHeader('Allow', ['GET']);
