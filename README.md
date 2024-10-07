@@ -33,8 +33,6 @@ Next, Visit https://github.com/refsigregory/qr-guestbook-mobile and Build & Inst
 
 ## TODO
 
-- [ ] Update Log Pages
-
 - [ ] Secure API
 
 - [ ] Better Interface
