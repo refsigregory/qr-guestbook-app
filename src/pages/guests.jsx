@@ -57,8 +57,11 @@ function Guests() {
       setDescription('');
       
       if (isEdit) {
+        alert('Data updated');
         setIsEdit(false);
         setSelectedID(null);
+      } else {
+        alert('Data added');
       }
     } else {
       const error = await res.json();
@@ -72,6 +75,11 @@ function Guests() {
     setSelectedID(guest.id);
     setName(guest.name);
     setDescription(guest.description);
+
+    const element = document.getElementById('form-guest');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const handleDelete = async (id) => {
@@ -80,6 +88,7 @@ function Guests() {
     });
 
     if (res.ok) {
+      alert('Data Deleted');
       fetchGuests(); // Refresh guest list after delete
     } else {
       const error = await res.json();
@@ -97,6 +106,7 @@ function Guests() {
     });
 
     if (res.ok) {
+      // alert('New Access Code Added');
       fetchGuests(); // Refresh guests to show new access code
       setNewAccessCode(''); // Clear the input field
     } else {
@@ -111,6 +121,7 @@ function Guests() {
     });
 
     if (res.ok) {
+      // alert('Access Code Deleted');
       fetchGuests(); // Refresh the list after deletion
     } else {
       const error = await res.json();
@@ -159,7 +170,7 @@ function Guests() {
   return (
     <div className="p-6">
       <h1 className="text-lg font-bold">Guest Management</h1>
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md mt-4">
+      <form onSubmit={handleSubmit} id="form-guest" className="bg-white p-6 rounded shadow-md mt-4">
         <input
           type="text"
           placeholder="Name"
