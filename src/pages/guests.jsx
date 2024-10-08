@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 
 function Guests() {
+  const [loadingGenerate, setLoadingGenerate] = useState(false);
   const [selectedID, setSelectedID] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
   const [guests, setGuests] = useState([]);
@@ -117,7 +118,7 @@ function Guests() {
     }
   };
 
-  const downloadInvitation = async (guest) => {
+  const downloadInvitation = async (guest, number = 1) => {
     const templateImg = '/assets/template.png'; // Path to your template image
     const qrCodeUrl = qrCodeUrls[guest.id]?.[0]; // Assuming you want the first QR code
 
@@ -135,6 +136,8 @@ function Guests() {
     qrCodeImage.src = qrCodeUrl;
 
     template.onload = () => {
+      setLoadingGenerate(true);
+
       ctx.drawImage(template, 0, 0); // Draw template
       qrCodeImage.onload = () => {
         ctx.drawImage(qrCodeImage, 50, 100, 150, 150); // Position and size of the QR code
@@ -142,9 +145,11 @@ function Guests() {
         ctx.fillStyle = 'black'; // Text color
         ctx.fillText(guest.name, 50, 300); // Position of the guest's name
 
+        setLoadingGenerate(false);
+
         // Download the canvas as an image
         const link = document.createElement('a');
-        link.download = `invitation-${guest.name}.png`;
+        link.download = `invitation-${guest.name}(${number}).png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
       };
@@ -207,18 +212,19 @@ function Guests() {
                             <div className="m-auto qr-code-container">
                               <img 
                                 src={qrCodeUrls[guest.id]?.[index]} 
-                                title={accessCode.id} 
-                                alt={`QR Code ${accessCode.id}`} 
+                                title={accessCode.code} 
+                                alt={`QR Code ${accessCode.code}`} 
                                 className="mb-2" 
                               />
-                              <div className="hide action-guest-qr"> {/* Apply both classes */}
+                              <div className="hide action-guest-qr flex flex-col"> {/* Apply both classes */}
                                 <button 
-                                  onClick={() => downloadInvitation(guest)} 
-                                  className="font-sm bg-gray-500 text-white p-2 rounded mt-2"
+                                  onClick={() => downloadInvitation(guest, index+1)} 
+                                  className="font-sm bg-blue-500 text-white p-2 rounded mt-2"
+                                  title={`Generate ${accessCode.code} (#${index+1})`}
                                 >
-                                  Generate Invitation
+                                  {loadingGenerate ? 'Download' : 'Generate Invitation'}
                                 </button>
-                                <button onClick={() => handleDeleteAccessCode(accessCode.id)} className="text-red-500 ml-2">Delete</button>
+                                <button onClick={() => handleDeleteAccessCode(accessCode.id)} className="text-red-500">Delete</button>
                               </div>
                             </div>
                           </div>
