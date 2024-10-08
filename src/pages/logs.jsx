@@ -95,9 +95,22 @@ function Logs() {
           <li>No logs available.</li>
         ) : (
           filteredLogs.map((log) => (
-            <li key={log.id} className="border p-2 mb-2 flex justify-between items-center">
+            <li key={log.id} className="border bg-white p-5 mb-2 flex justify-between items-center hover:bg-gray-100">
               <div>
-                <div className="text-xs text-gray-800">{new Date(log.createdAt).toLocaleString('id-ID', { timeZone: 'Asia/Makassar', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: false })}</div>
+                <div className="text-xs text-blue-600">
+                  {
+                    new Date(log.createdAt).toLocaleString('id-ID', {
+                        timeZone: 'Asia/Makassar',
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric', 
+                        hour12: false
+                      })
+                    }
+                  </div>
                 <div className="font-extrabold text-md">{log.guest.name}</div>
                 <div className="text-xs">
                   {log.accessCode}
