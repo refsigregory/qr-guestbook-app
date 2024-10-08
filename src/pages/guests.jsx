@@ -176,14 +176,14 @@ function Guests() {
         </button>
       </form>
 
-      <ul className="mt-4">
+      <ul>
         {guests?.length === 0 ? (
           <li className="border p-2 mb-2">No guests found. Please add a guest.</li>
         ) : (
           guests.map((guest) => (
-            <li key={guest.id} className="border p-2 mb-2 flex flex-col">
+            <li key={guest.id} className="mt-4 bg-white border p-5 mb-2 flex flex-col">
               <div className="flex justify-between">
-                <div>
+                <div className="text-center text-xl">
                   <strong>{guest.name}</strong> - {guest.description}
                 </div>
                 <div>
@@ -191,29 +191,43 @@ function Guests() {
                   <button onClick={() => handleDelete(guest.id)} className="text-red-500 ml-2">Delete</button>
                 </div>
               </div>
-              <div className="mt-2">
-                <h3 className="font-semibold">Access Codes</h3>
-                {guest.accessCodes.length === 0 ? (
-                  <div>No access codes found for this guest.</div>
-                ) : (
-                  guest.accessCodes.map((accessCode, index) => (
-                    <div key={accessCode.id} className="flex justify-between">
-                      <div>
-                        <img src={qrCodeUrls[guest.id]?.[index]} alt="QR Code" className="mb-2" />
-                        <button 
-                          onClick={() => downloadInvitation(guest)} 
-                          className="bg-gray-500 text-white p-2 rounded mt-2"
-                        >
-                          Download Invitation
-                        </button>
-                        <button onClick={() => handleDeleteAccessCode(accessCode.id)} className="text-red-500 ml-2">Delete QR Code</button>
-                      </div>
+              <div className="mx-auto mt-2 max-w-[600px]">
+                <h3 className="font-semibold text-center">Access Codes
+                  <button onClick={() => handleAddAccessCode(guest.id)} className="ml-2 bg-green-500 text-white px-1 rounded" title="Add New Access Code">+</button>
+                </h3>
+
+                <div className="mt-5">
+                  {guest.accessCodes.length === 0 ? (
+                    <div>No access codes found for this guest.</div>
+                  ) : (
+                    <div className="grid grid-cols-4 gap-2">
+                      {
+                        guest.accessCodes.map((accessCode, index) => (
+                          <div key={accessCode.id} className="flex justify-between">
+                            <div className="m-auto qr-code-container">
+                              <img 
+                                src={qrCodeUrls[guest.id]?.[index]} 
+                                title={accessCode.id} 
+                                alt={`QR Code ${accessCode.id}`} 
+                                className="mb-2" 
+                              />
+                              <div className="hide action-guest-qr"> {/* Apply both classes */}
+                                <button 
+                                  onClick={() => downloadInvitation(guest)} 
+                                  className="font-sm bg-gray-500 text-white p-2 rounded mt-2"
+                                >
+                                  Generate Invitation
+                                </button>
+                                <button onClick={() => handleDeleteAccessCode(accessCode.id)} className="text-red-500 ml-2">Delete</button>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      }
                     </div>
-                  ))
-                )}
-                <button onClick={() => handleAddAccessCode(guest.id)} className="bg-green-500 text-white p-2 rounded mt-2">
-                  Add Access Code
-                </button>
+                  )}
+                </div>
+
               </div>
             </li>
           ))

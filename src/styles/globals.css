@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
+  --background: #f1f1f1;
   --foreground: #171717;
 }
 
@@ -25,3 +25,33 @@ body {
     text-wrap: balance;
   }
 }
+
+.qr-code-container {
+  position: relative;
+  box-shadow: 0px 10px 25px -3px rgba(0, 0, 0, 0.1);
+}
+
+.hide {
+  position: absolute;
+  bottom: -50%; 
+  left: 50%; 
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 1;
+}
+
+.qr-code-container:hover .hide {
+  opacity: 1; 
+  visibility: visible; 
+}
+
+.action-guest-qr {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0px 5px 5px -3px rgba(0, 0, 0, 0.3);
+  background-color: #f1f1f1;
+}
+
