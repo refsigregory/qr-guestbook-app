@@ -18,21 +18,29 @@ export default async function handler(req, res) {
 
       if (!foundCode) {
         return res.status(404).json({
-          error: 'Maaf, QR Code anda tidak terdaftar.', // TODO: depercated field, delete if build debug2 not used
+          error: 'Maaf, QR Code anda tidak terdaftar.', // depercated, need to remove after update mobile app
           message: 'Maaf, QR Code anda tidak terdaftar.',
          });
       }
 
       // Log the access (you may want to adjust this part)
       const log = await prisma.logs.create({
-        message: 'Add logs succesfully',
         data: {
           guestId: foundCode.guestId,
           accessCode: foundCode.code,
         },
       });
 
-      return res.status(201).json({ log, guest: foundCode.guest });
+      return res.status(201).json({
+        message: 'Add logs succesfully',
+        data: {
+          log,
+          guest: foundCode.guest
+        },
+
+        log, // depercated, need to remove after update mobile app
+        guest: foundCode.guest // depercated, need to remove after update mobile app
+      });
     } catch (error) {
       console.error('Error fetching access code:', error);
       return res.status(500).json({ message: 'Failed to log access' });
