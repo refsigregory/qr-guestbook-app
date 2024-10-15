@@ -130,7 +130,7 @@ function Guests() {
   };
 
   const downloadInvitation = async (guest, number = 1) => {
-    const templateImg = '/assets/template.png'; // Path to your template image
+    const templateImg = '/assets/graduation.png'; // Path to your template image
     const qrCodeUrl = qrCodeUrls[guest.id]?.[0]; // Assuming you want the first QR code
 
     const canvas = document.createElement('canvas');
@@ -140,8 +140,8 @@ function Guests() {
     const qrCodeImage = new Image();
 
     // Set canvas size (adjust as needed)
-    canvas.width = 500; // Template width
-    canvas.height = 500; // Template height
+    canvas.width = 1080; // Template width
+    canvas.height = 1080; // Template height
 
     template.src = templateImg;
     qrCodeImage.src = qrCodeUrl;
@@ -151,10 +151,20 @@ function Guests() {
 
       ctx.drawImage(template, 0, 0); // Draw template
       qrCodeImage.onload = () => {
-        ctx.drawImage(qrCodeImage, 50, 100, 150, 150); // Position and size of the QR code
+        ctx.drawImage(qrCodeImage, ((1080/2) - (150 / 2)), 400, 150, 150); // Position and size of the QR code
+
         ctx.font = '30px Arial';
         ctx.fillStyle = 'black'; // Text color
-        ctx.fillText(guest.name, 50, 300); // Position of the guest's name
+        ctx.textAlign = "center";
+
+        const guestName = guest.name;
+        ctx.fillText(guestName, (1080/2), 600); // Position of the guest's name
+
+
+        ctx.font = '18px Arial';
+        ctx.fillStyle = '#333'; 
+        ctx.fillText(guest.description, (1080/2), 630); 
+
 
         setLoadingGenerate(false);
 
