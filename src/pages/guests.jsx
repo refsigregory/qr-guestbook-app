@@ -132,9 +132,8 @@ function Guests() {
     }
   };
 
-  const downloadInvitation = async (guest, number = 1) => {
+  const downloadInvitation = async (guest, qrCodeUrl, number = 1) => {
     const templateImg = '/assets/graduation.png'; // Path to your template image
-    const qrCodeUrl = qrCodeUrls[guest.id]?.[0]; // Assuming you want the first QR code
 
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -247,7 +246,7 @@ function Guests() {
                               />
                               <div className="hide action-guest-qr flex flex-col"> {/* Apply both classes */}
                                 <button 
-                                  onClick={() => downloadInvitation(guest, index+1)} 
+                                  onClick={() => downloadInvitation(guest, qrCodeUrls[guest.id]?.[index], index+1)} 
                                   className="font-sm bg-blue-500 text-white p-2 rounded mt-2"
                                   title={`Generate ${accessCode.code} (#${index+1})`}
                                 >
