@@ -31,7 +31,10 @@ function Guests() {
       if (codes.length > 0) {
         const qrs = await Promise.all(codes.map(async (code) => {
           if (code) {
-            const qrCode = await QRCode.toDataURL(code);
+            const qrCode = await QRCode.toDataURL(code, {
+              type: 'image/png',
+              scale: 15,
+            });
             return qrCode; 
           }
         }));
@@ -151,19 +154,24 @@ function Guests() {
 
       ctx.drawImage(template, 0, 0); // Draw template
       qrCodeImage.onload = () => {
-        ctx.drawImage(qrCodeImage, ((1080/2) - (150 / 2)), 400, 150, 150); // Position and size of the QR code
+
+        const imgWidth = 500;
+        const imgHeight = imgWidth;
+        const textVertical = 780;
+
+        ctx.drawImage(qrCodeImage, ((canvas.height/2) - (imgWidth / 2)), 250, imgWidth, imgHeight); // Position and size of the QR code
 
         ctx.font = '30px Arial';
         ctx.fillStyle = 'black'; // Text color
         ctx.textAlign = "center";
 
         const guestName = guest.name;
-        ctx.fillText(guestName, (1080/2), 600); // Position of the guest's name
+        ctx.fillText(guestName, (canvas.width/2), textVertical); // Position of the guest's name
 
 
         ctx.font = '18px Arial';
         ctx.fillStyle = '#333'; 
-        ctx.fillText(guest.description, (1080/2), 630); 
+        ctx.fillText(guest.description, (canvas.height/2), textVertical+30); 
 
 
         setLoadingGenerate(false);
