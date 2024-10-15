@@ -165,7 +165,7 @@ function Guests() {
         ctx.fillStyle = 'black'; // Text color
         ctx.textAlign = "center";
 
-        const guestName = guest.name;
+        const guestName = `${guest.name} ${number > 1? `(${number})` : ''}`
         ctx.fillText(guestName, (canvas.width/2), textVertical); // Position of the guest's name
 
 
