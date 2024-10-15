@@ -157,9 +157,9 @@ function Guests() {
 
         const imgWidth = 500;
         const imgHeight = imgWidth;
-        const textVertical = 780;
+        const textVertical = 810;
 
-        ctx.drawImage(qrCodeImage, ((canvas.height/2) - (imgWidth / 2)), 250, imgWidth, imgHeight); // Position and size of the QR code
+        ctx.drawImage(qrCodeImage, ((canvas.height/2) - (imgWidth / 2)), 280, imgWidth, imgHeight); // Position and size of the QR code
 
         ctx.font = '30px Arial';
         ctx.fillStyle = 'black'; // Text color
