@@ -46,13 +46,12 @@ export default async function handler(req, res) {
 
       let message = 'Berhasil menyimpan data';
       const guestName = foundCode.guest?.name || 'Tamu';
+      const guestCheckInMessage = (foundCode.guest?.name && foundCode.guest?.name) ? `atas nama ${guestName} (${foundCode.guest?.description})` : '';
+
       if (status === "CheckIn" && lastStatus === "CheckIn") {
         // Already CheckIn
         return res.status(403).json({
           message: `Maaf, ${guestName} sudah CheckIn sebelumnya.`,
-          data: {
-            guest: foundCode.guest
-          },
          });
       } else if (status === "CheckOut" && lastStatus=== "CheckIn") {
         // Success CheckOut
@@ -61,13 +60,10 @@ export default async function handler(req, res) {
         // Already CheckOut
         return res.status(403).json({
           message: `${guestName} sudah ChekOut sebelumnya.`,
-          data: {
-            guest: foundCode.guest
-          },
          });
       } else if (status === "CheckIn") {
         // Success CheckIn
-        message = `Berhasil CheckIn atas nama ${foundCode.guest?.name} (${foundCode.guest?.description})`;
+        message = `Berhasil CheckIn ${guestCheckInMessage}`;
       } else {
         return res.status(400).json({
           message: 'Maaf, permintaan anda tidak valid',
