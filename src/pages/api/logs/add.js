@@ -44,9 +44,11 @@ export default async function handler(req, res) {
         lastStatus = lastLog?.status;
       }
 
+      const guestData = foundCode.guest;
+
       let message = 'Berhasil menyimpan data';
-      const guestName = foundCode.guest?.name || 'Tamu';
-      const guestCheckInMessage = (foundCode.guest?.name && foundCode.guest?.name) ? `atas nama ${guestName} (${foundCode.guest?.description})` : '';
+      const guestName = guestData?.name || 'Tamu';
+      const guestCheckInMessage = (guestData.name && guestData?.name) ? `atas nama ${guestData?.name} (${guestData?.description})` : '';
 
       if (status === "CheckIn" && lastStatus === "CheckIn") {
         // Already CheckIn
@@ -83,7 +85,7 @@ export default async function handler(req, res) {
         message: message,
         data: {
           log,
-          guest: foundCode.guest
+          guest: guestData
         },
       });
     } catch (error) {
