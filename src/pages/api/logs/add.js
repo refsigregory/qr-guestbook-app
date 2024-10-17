@@ -51,7 +51,6 @@ export default async function handler(req, res) {
         return res.status(403).json({
           message: 'Maaf, anda sudah CheckIn sebelumnya.',
           data: {
-            log,
             guest: foundCode.guest
           },
          });
@@ -63,13 +62,12 @@ export default async function handler(req, res) {
         return res.status(403).json({
           message: 'Anda sudah ChekOut sebelumnya.',
           data: {
-            log,
             guest: foundCode.guest
           },
          });
       } else if (status === "CheckIn") {
         // Success CheckIn
-        message = 'Anda berhasil CheckIn';
+        message = `Halo ${foundCode.guest.name} (${foundCode.guest.description})`;
       } else {
         return res.status(400).json({
           error: 'Maaf, permintaan anda tidak valid', // depercated, need to remove after update mobile app
