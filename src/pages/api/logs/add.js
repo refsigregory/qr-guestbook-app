@@ -87,6 +87,8 @@ export default async function handler(req, res) {
           log,
           guest: guestData
         },
+
+        guest: guestData, // temporary add untill mobile app update
       });
     } catch (error) {
       console.error('Error fetching access code:', error);
