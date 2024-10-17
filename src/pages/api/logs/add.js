@@ -39,7 +39,7 @@ export default async function handler(req, res) {
         },
       });
 
-      let lastStatus = "CheckIn";
+      let lastStatus = "";
       if (lastLog) {
         lastStatus = lastLog?.status;
       }
