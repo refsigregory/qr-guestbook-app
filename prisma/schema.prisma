@@ -34,9 +34,10 @@ model AccessCode {
 }
 
 model Logs {
-  id        Int      @id @default(autoincrement())
-  guestId   Int
-  accessCode String
-  createdAt DateTime @default(now())
-  guest     Guest    @relation(fields: [guestId], references: [id])
+  id            Int      @id @default(autoincrement())
+  guestId       Int
+  accessCode    String
+  status        String?
+  createdAt     DateTime @default(now())
+  guest         Guest    @relation(fields: [guestId], references: [id])
 }

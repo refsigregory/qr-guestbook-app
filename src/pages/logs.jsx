@@ -111,7 +111,7 @@ function Logs() {
                       })
                     }
                   </div>
-                <div className="font-extrabold text-md">{log.guest.name}</div>
+                <div className="font-extrabold text-md">{log.guest.name} - {log?.status}</div>
                 <div className="text-xs">
                   {log.accessCode}
                 </div>
