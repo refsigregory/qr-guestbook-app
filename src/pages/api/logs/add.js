@@ -18,8 +18,7 @@ export default async function handler(req, res) {
 
       if (!foundCode) {
         return res.status(404).json({
-          error: 'Maaf, QR Code anda tidak terdaftar.', // depercated, need to remove after update mobile app
-          message: 'Maaf, QR Code anda tidak terdaftar.',
+          message: 'Maaf, QR Code ini tidak terdaftar.',
          });
       }
 
@@ -45,32 +44,31 @@ export default async function handler(req, res) {
         lastStatus = lastLog?.status;
       }
 
-      let message = 'Add logs succesfully';
+      let message = 'Berhasil menyimpan data';
       if (status === "CheckIn" && lastStatus === "CheckIn") {
         // Already CheckIn
         return res.status(403).json({
-          message: 'Maaf, anda sudah CheckIn sebelumnya.',
+          message: `Maaf, ${foundCode.guest.name} sudah CheckIn sebelumnya.`,
           data: {
             guest: foundCode.guest
           },
          });
       } else if (status === "CheckOut" && lastStatus=== "CheckIn") {
         // Success CheckOut
-        message = 'Anda berhasil CheckOut';
+        message = `${foundCode.guest.name} berhasil CheckOut`;
       } else if (status === "CheckOut" && lastStatus === "CheckOut") {
         // Already CheckOut
         return res.status(403).json({
-          message: 'Anda sudah ChekOut sebelumnya.',
+          message: `${foundCode.guest.name} sudah ChekOut sebelumnya.`,
           data: {
             guest: foundCode.guest
           },
          });
       } else if (status === "CheckIn") {
         // Success CheckIn
-        message = `Halo ${foundCode.guest.name} (${foundCode.guest.description})`;
+        message = `Berhasil CheckIn atas nama ${foundCode.guest.name} (${foundCode.guest.description})`;
       } else {
         return res.status(400).json({
-          error: 'Maaf, permintaan anda tidak valid', // depercated, need to remove after update mobile app
           message: 'Maaf, permintaan anda tidak valid',
          });
       }
@@ -90,13 +88,10 @@ export default async function handler(req, res) {
           log,
           guest: foundCode.guest
         },
-
-        log, // depercated, need to remove after update mobile app
-        guest: foundCode.guest // depercated, need to remove after update mobile app
       });
     } catch (error) {
       console.error('Error fetching access code:', error);
-      return res.status(500).json({ message: 'Failed to log access' });
+      return res.status(500).json({ message: 'Gagal untuk memproses' });
     }
   } else {
     res.setHeader('Allow', ['POST']);
