@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 
 function Guests() {
+  const [loading, setLoading] = useState(false);
   const [loadingGenerate, setLoadingGenerate] = useState(false);
   const [selectedID, setSelectedID] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
@@ -12,22 +13,32 @@ function Guests() {
   const [editingGuest, setEditingGuest] = useState(null);
   const [newAccessCode, setNewAccessCode] = useState('');
   const [qrCodeUrls, setQrCodeUrls] = useState({});
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10); // Default limit for pagination
+  const [totalGuests, setTotalGuests] = useState(0);
 
   useEffect(() => {
     fetchGuests();
-  }, []);
+  }, [page]); // Fetch guests whenever the page changes
 
   const fetchGuests = async () => {
-    const res = await fetch('/api/guests');
+    setLoading(true);
+    const res = await fetch(`/api/guests?page=${page}&limit=${limit}`);
     const data = await res.json();
-    setGuests(data?.data);
-    generateQRCodes(data?.data); // Generate QR codes when guests are fetched
+    if (res.ok) {
+      setGuests(data?.data);
+      setTotalGuests(data.pagination.totalGuests); // Set total guests for pagination
+      generateQRCodes(data?.data); // Generate QR codes when guests are fetched
+    } else {
+      alert('Failed to fetch guests.');
+    }
+    setLoading(false);
   };
 
   const generateQRCodes = async (guestList) => {
     const urls = {};
     await Promise.all(guestList?.map(async (guest) => {
-      const codes = guest.accessCodes.map(ac => ac.code); // Get access codes for QR generation
+      const codes = guest.accessCodes.map(ac => ac.code);
       if (codes.length > 0) {
         const qrs = await Promise.all(codes.map(async (code) => {
           if (code) {
@@ -55,7 +66,7 @@ function Guests() {
     });
 
     if (res.ok) {
-      fetchGuests(); // Refresh guests after adding
+      fetchGuests();
       setName('');
       setDescription('');
       
@@ -78,11 +89,7 @@ function Guests() {
     setSelectedID(guest.id);
     setName(guest.name);
     setDescription(guest.description);
-
-    const element = document.getElementById('form-guest');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    document.getElementById('form-guest')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const handleDelete = async (id) => {
@@ -109,7 +116,6 @@ function Guests() {
     });
 
     if (res.ok) {
-      // alert('New Access Code Added');
       fetchGuests(); // Refresh guests to show new access code
       setNewAccessCode(''); // Clear the input field
     } else {
@@ -124,7 +130,6 @@ function Guests() {
     });
 
     if (res.ok) {
-      // alert('Access Code Deleted');
       fetchGuests(); // Refresh the list after deletion
     } else {
       const error = await res.json();
@@ -138,6 +143,9 @@ function Guests() {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
 
+    canvas.width = 500; // Adjust as needed
+    canvas.height = 500; 
+
     const template = new Image();
     const qrCodeImage = new Image();
 
@@ -150,8 +158,7 @@ function Guests() {
 
     template.onload = () => {
       setLoadingGenerate(true);
-
-      ctx.drawImage(template, 0, 0); // Draw template
+      ctx.drawImage(template, 0, 0);
       qrCodeImage.onload = () => {
 
         const imgWidth = 500;
@@ -174,8 +181,6 @@ function Guests() {
 
 
         setLoadingGenerate(false);
-
-        // Download the canvas as an image
         const link = document.createElement('a');
         link.download = `invitation-${guest.name}(${number}).png`;
         link.href = canvas.toDataURL('image/png');
@@ -183,6 +188,15 @@ function Guests() {
       };
     };
   };
+
+  // Pagination controls
+  const totalPages = Math.ceil(totalGuests / limit);
+
+  if (loading) {
+    return (<>
+      <div>Loading...</div>
+    </>);
+  }
 
   return (
     <div className="p-6">
@@ -210,7 +224,7 @@ function Guests() {
       </form>
 
       <ul>
-        {guests?.length === 0 ? (
+        {guests.length === 0 ? (
           <li className="border p-2 mb-2">No guests found. Please add a guest.</li>
         ) : (
           guests.map((guest) => (
@@ -261,12 +275,30 @@ function Guests() {
                     </div>
                   )}
                 </div>
-
               </div>
             </li>
           ))
         )}
       </ul>
+
+      {/* Pagination Controls */}
+      <div className="flex justify-between mt-4">
+        <button 
+          onClick={() => setPage((prev) => Math.max(prev - 1, 1))} 
+          disabled={page === 1} 
+          className="bg-gray-300 p-2 rounded disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <span>Page {page} of {totalPages} from {totalGuests} Guests</span>
+        <button 
+          onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))} 
+          disabled={page === totalPages} 
+          className="bg-gray-300 p-2 rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }
