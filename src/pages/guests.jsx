@@ -192,12 +192,6 @@ function Guests() {
   // Pagination controls
   const totalPages = Math.ceil(totalGuests / limit);
 
-  if (loading) {
-    return (<>
-      <div>Loading...</div>
-    </>);
-  }
-
   return (
     <div className="p-6">
       <h1 className="text-lg font-bold">Guest Management</h1>
@@ -222,64 +216,68 @@ function Guests() {
           {isEdit ? 'Save' : 'Add'}
         </button>
       </form>
-
-      <ul>
-        {guests.length === 0 ? (
-          <li className="border p-2 mb-2">No guests found. Please add a guest.</li>
-        ) : (
-          guests.map((guest) => (
-            <li key={guest.id} className="mt-4 bg-white border p-5 mb-2 flex flex-col">
-              <div className="flex justify-between">
-                <div className="text-center text-xl">
-                  <strong>{guest.name}</strong> - {guest.description}
+      {
+        loading ?
+          (<div className="my-2 text-center">Loading...</div>)
+        :
+        (<ul>
+          {guests.length === 0 ? (
+            <li className="border p-2 mb-2">No guests found. Please add a guest.</li>
+          ) : (
+            guests.map((guest) => (
+              <li key={guest.id} className="mt-4 bg-white border p-5 mb-2 flex flex-col">
+                <div className="flex justify-between">
+                  <div className="text-center text-xl">
+                    <strong>{guest.name}</strong> - {guest.description}
+                  </div>
+                  <div>
+                    <button onClick={() => handleEdit(guest)} className="text-blue-500">Edit</button>
+                    <button onClick={() => handleDelete(guest.id)} className="text-red-500 ml-2">Delete</button>
+                  </div>
                 </div>
-                <div>
-                  <button onClick={() => handleEdit(guest)} className="text-blue-500">Edit</button>
-                  <button onClick={() => handleDelete(guest.id)} className="text-red-500 ml-2">Delete</button>
-                </div>
-              </div>
-              <div className="mx-auto mt-2 max-w-[600px]">
-                <h3 className="font-semibold text-center">Access Codes
-                  <button onClick={() => handleAddAccessCode(guest.id)} className="ml-2 bg-green-500 text-white px-1 rounded" title="Add New Access Code">+</button>
-                </h3>
+                <div className="mx-auto mt-2 max-w-[600px]">
+                  <h3 className="font-semibold text-center">Access Codes
+                    <button onClick={() => handleAddAccessCode(guest.id)} className="ml-2 bg-green-500 text-white px-1 rounded" title="Add New Access Code">+</button>
+                  </h3>
 
-                <div className="mt-5">
-                  {guest.accessCodes.length === 0 ? (
-                    <div>No access codes found for this guest.</div>
-                  ) : (
-                    <div className="grid grid-cols-4 gap-2">
-                      {
-                        guest.accessCodes.map((accessCode, index) => (
-                          <div key={accessCode.id} className="flex justify-between">
-                            <div className="m-auto qr-code-container">
-                              <img 
-                                src={qrCodeUrls[guest.id]?.[index]} 
-                                title={accessCode.code} 
-                                alt={`QR Code ${accessCode.code}`} 
-                                className="mb-2" 
-                              />
-                              <div className="hide action-guest-qr flex flex-col"> {/* Apply both classes */}
-                                <button 
-                                  onClick={() => downloadInvitation(guest, qrCodeUrls[guest.id]?.[index], index+1)} 
-                                  className="font-sm bg-blue-500 text-white p-2 rounded mt-2"
-                                  title={`Generate ${accessCode.code} (#${index+1})`}
-                                >
-                                  {loadingGenerate ? 'Download' : 'Generate Invitation'}
-                                </button>
-                                <button onClick={() => handleDeleteAccessCode(accessCode.id)} className="text-red-500">Delete</button>
+                  <div className="mt-5">
+                    {guest.accessCodes.length === 0 ? (
+                      <div>No access codes found for this guest.</div>
+                    ) : (
+                      <div className="grid grid-cols-4 gap-2">
+                        {
+                          guest.accessCodes.map((accessCode, index) => (
+                            <div key={accessCode.id} className="flex justify-between">
+                              <div className="m-auto qr-code-container">
+                                <img 
+                                  src={qrCodeUrls[guest.id]?.[index]} 
+                                  title={accessCode.code} 
+                                  alt={`QR Code ${accessCode.code}`} 
+                                  className="mb-2" 
+                                />
+                                <div className="hide action-guest-qr flex flex-col"> {/* Apply both classes */}
+                                  <button 
+                                    onClick={() => downloadInvitation(guest, qrCodeUrls[guest.id]?.[index], index+1)} 
+                                    className="font-sm bg-blue-500 text-white p-2 rounded mt-2"
+                                    title={`Generate ${accessCode.code} (#${index+1})`}
+                                  >
+                                    {loadingGenerate ? 'Download' : 'Generate Invitation'}
+                                  </button>
+                                  <button onClick={() => handleDeleteAccessCode(accessCode.id)} className="text-red-500">Delete</button>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))
-                      }
-                    </div>
-                  )}
+                          ))
+                        }
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </li>
-          ))
-        )}
-      </ul>
+              </li>
+            ))
+          )}
+        </ul>)
+      }
 
       {/* Pagination Controls */}
       <div className="flex justify-between mt-4">
