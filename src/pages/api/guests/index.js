@@ -5,20 +5,34 @@ import { generateUniqueAccessCode } from '@/utils/accessCodeGenerator'; // Ensur
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
-      const { page = 1, limit = 10 } = req.query; // Default values: page 1, limit 10
+      const { page = 1, limit = 10, search = '' } = req.query; // Default values: page 1, limit 10, search ''
       const parsedPage = parseInt(page, 10);
       const parsedLimit = parseInt(limit, 10);
       const skip = (parsedPage - 1) * parsedLimit; // Calculate skip value
-
+    
       const guests = await prisma.guest.findMany({
+        where: {
+          name: {
+            contains: search, // Filter by name using contains
+            mode: 'insensitive', // Make the search case-insensitive
+          },
+        },
         include: { accessCodes: true }, // Include access codes
         skip, // Skip the first 'skip' records
         take: parsedLimit, // Limit the number of records returned
       });
-
-      const totalGuests = await prisma.guest.count(); // Count total guests for pagination
+    
+      const totalGuests = await prisma.guest.count({
+        where: {
+          name: {
+            contains: search, // Count only matching guests
+            mode: 'insensitive', // Make the count case-insensitive
+          },
+        },
+      });
+    
       const totalPages = Math.ceil(totalGuests / parsedLimit); // Calculate total pages
-
+    
       res.status(200).json({
         message: "Successfully fetched guests",
         data: guests,

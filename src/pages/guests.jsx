@@ -16,14 +16,19 @@ function Guests() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10); // Default limit for pagination
   const [totalGuests, setTotalGuests] = useState(0);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     fetchGuests();
-  }, [page]); // Fetch guests whenever the page changes
+  }, [page, limit, search]); // Fetch guests whenever page, limit, or search changes
+
+  useEffect(() => {
+    setPage(0);
+  }, [limit]);
 
   const fetchGuests = async () => {
     setLoading(true);
-    const res = await fetch(`/api/guests?page=${page}&limit=${limit}`);
+    const res = await fetch(`/api/guests?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`);
     const data = await res.json();
     if (res.ok) {
       setGuests(data?.data);
@@ -143,15 +148,12 @@ function Guests() {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
 
-    canvas.width = 500; // Adjust as needed
-    canvas.height = 500; 
+    // Set canvas size
+    canvas.width = 1080; // Template width
+    canvas.height = 1080; // Template height
 
     const template = new Image();
     const qrCodeImage = new Image();
-
-    // Set canvas size (adjust as needed)
-    canvas.width = 1080; // Template width
-    canvas.height = 1080; // Template height
 
     template.src = templateImg;
     qrCodeImage.src = qrCodeUrl;
@@ -160,25 +162,21 @@ function Guests() {
       setLoadingGenerate(true);
       ctx.drawImage(template, 0, 0);
       qrCodeImage.onload = () => {
-
         const imgWidth = 500;
-        const imgHeight = imgWidth;
         const textVertical = 810;
 
-        ctx.drawImage(qrCodeImage, ((canvas.height/2) - (imgWidth / 2)), 280, imgWidth, imgHeight); // Position and size of the QR code
+        ctx.drawImage(qrCodeImage, ((canvas.height/2) - (imgWidth / 2)), 280, imgWidth, imgWidth); // Position and size of the QR code
 
         ctx.font = '30px Arial';
         ctx.fillStyle = 'black'; // Text color
         ctx.textAlign = "center";
 
-        const guestName = `${guest.name} ${number > 1? `(${number})` : ''}`
+        const guestName = `${guest.name} ${number > 1 ? `(${number})` : ''}`
         ctx.fillText(guestName, (canvas.width/2), textVertical); // Position of the guest's name
-
 
         ctx.font = '18px Arial';
         ctx.fillStyle = '#333'; 
-        ctx.fillText(guest.description, (canvas.height/2), textVertical+30); 
-
+        ctx.fillText(guest.description, (canvas.height/2), textVertical + 30); 
 
         setLoadingGenerate(false);
         const link = document.createElement('a');
@@ -195,6 +193,18 @@ function Guests() {
   return (
     <div className="p-6">
       <h1 className="text-lg font-bold">Guest Management</h1>
+      
+      {/* Search Input */}
+      <div className="my-4">
+        <input
+          type="text"
+          placeholder="Search by name"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="border p-2 mb-4 w-full"
+        />
+      </div>
+
       <form onSubmit={handleSubmit} id="form-guest" className="bg-white p-6 rounded shadow-md mt-4">
         <input
           type="text"
@@ -216,11 +226,11 @@ function Guests() {
           {isEdit ? 'Save' : 'Add'}
         </button>
       </form>
-      {
-        loading ?
-          (<div className="my-2 text-center">Loading...</div>)
-        :
-        (<ul>
+      
+      {loading ? (
+        <div className="my-2 text-center">Loading...</div>
+      ) : (
+        <ul>
           {guests.length === 0 ? (
             <li className="border p-2 mb-2">No guests found. Please add a guest.</li>
           ) : (
@@ -245,30 +255,28 @@ function Guests() {
                       <div>No access codes found for this guest.</div>
                     ) : (
                       <div className="grid grid-cols-4 gap-2">
-                        {
-                          guest.accessCodes.map((accessCode, index) => (
-                            <div key={accessCode.id} className="flex justify-between">
-                              <div className="m-auto qr-code-container">
-                                <img 
-                                  src={qrCodeUrls[guest.id]?.[index]} 
-                                  title={accessCode.code} 
-                                  alt={`QR Code ${accessCode.code}`} 
-                                  className="mb-2" 
-                                />
-                                <div className="hide action-guest-qr flex flex-col"> {/* Apply both classes */}
-                                  <button 
-                                    onClick={() => downloadInvitation(guest, qrCodeUrls[guest.id]?.[index], index+1)} 
-                                    className="font-sm bg-blue-500 text-white p-2 rounded mt-2"
-                                    title={`Generate ${accessCode.code} (#${index+1})`}
-                                  >
-                                    {loadingGenerate ? 'Download' : 'Generate Invitation'}
-                                  </button>
-                                  <button onClick={() => handleDeleteAccessCode(accessCode.id)} className="text-red-500">Delete</button>
-                                </div>
+                        {guest.accessCodes.map((accessCode, index) => (
+                          <div key={accessCode.id} className="flex justify-between">
+                            <div className="m-auto qr-code-container">
+                              <img 
+                                src={qrCodeUrls[guest.id]?.[index]} 
+                                title={accessCode.code} 
+                                alt={`QR Code ${accessCode.code}`} 
+                                className="mb-2" 
+                              />
+                              <div className="hide action-guest-qr flex flex-col">
+                                <button 
+                                  onClick={() => downloadInvitation(guest, qrCodeUrls[guest.id]?.[index], index + 1)} 
+                                  className="font-sm bg-blue-500 text-white p-2 rounded mt-2"
+                                  title={`Generate ${accessCode.code} (#${index + 1})`}
+                                >
+                                  {loadingGenerate ? 'Download' : 'Generate Invitation'}
+                                </button>
+                                <button onClick={() => handleDeleteAccessCode(accessCode.id)} className="text-red-500">Delete</button>
                               </div>
                             </div>
-                          ))
-                        }
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
@@ -276,8 +284,23 @@ function Guests() {
               </li>
             ))
           )}
-        </ul>)
-      }
+        </ul>
+      )}
+
+      {/* Per-Page Selector */}
+      <div className="mt-4">
+        <label htmlFor="limit">Guests per page:</label>
+        <select 
+          id="limit" 
+          value={limit} 
+          onChange={(e) => setLimit(parseInt(e.target.value))} 
+          className="border p-2 ml-2"
+        >
+          {[10, 20, 50, 100, 500, 1000].map(value => (
+            <option key={value} value={value}>{value}</option>
+          ))}
+        </select>
+      </div>
 
       {/* Pagination Controls */}
       <div className="flex justify-between mt-4">
