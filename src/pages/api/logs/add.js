@@ -38,6 +38,19 @@ export default async function handler(req, res) {
           createdAt: 'desc', // Order by createdAt in descending order
         },
       });
+      
+      const dataAccessCode = await prisma.accessCode.findMany({
+        where: { guestId: parseInt(foundCode.guestId) },
+      });
+
+      let codeNumber = null;
+      let rank = 0; 
+      dataAccessCode?.forEach(async (obj) => {
+        if (obj.code === foundCode.code) {
+          codeNumber = rank;
+        }
+        rank++;
+      });
 
       let lastStatus = "";
       if (lastLog) {
@@ -47,8 +60,8 @@ export default async function handler(req, res) {
       const guestData = foundCode.guest;
 
       let message = 'Berhasil menyimpan data';
-      const guestName = guestData?.name || 'Tamu';
-      const guestCheckInMessage = (guestData.name && guestData?.name) ? `atas nama ${guestData?.name} (${guestData?.description})` : '';
+      const guestName = `${guestData?.name || 'Tamu'}${codeNumber ? ` [${codeNumber}]` : ''}`;
+      const guestCheckInMessage = (guestData.name && guestData?.name) ? `atas nama ${guestData?.name} (${guestData?.description})${codeNumber ? ` dengan kode akses nomor [${codeNumber}]` : ''}` : '';
 
       if (status === "CheckIn" && lastStatus === "CheckIn") {
         // Already CheckIn

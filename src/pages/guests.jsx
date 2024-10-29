@@ -23,7 +23,7 @@ function Guests() {
   }, [page, limit, search]); // Fetch guests whenever page, limit, or search changes
 
   useEffect(() => {
-    setPage(0);
+    setPage(1);
   }, [limit]);
 
   const fetchGuests = async () => {
@@ -193,30 +193,21 @@ function Guests() {
   return (
     <div className="p-6">
       <h1 className="text-lg font-bold">Guest Management</h1>
-      
-      {/* Search Input */}
-      <div className="my-4">
-        <input
-          type="text"
-          placeholder="Search by name"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border p-2 mb-4 w-full"
-        />
-      </div>
 
       <form onSubmit={handleSubmit} id="form-guest" className="bg-white p-6 rounded shadow-md mt-4">
+        <label>Name</label>
         <input
           type="text"
-          placeholder="Name"
+          placeholder="Guest name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="border p-2 mb-4 w-full"
           required
         />
+        <label>Description</label>
         <input
           type="text"
-          placeholder="Description"
+          placeholder="Guest description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="border p-2 mb-4 w-full"
@@ -226,9 +217,20 @@ function Guests() {
           {isEdit ? 'Save' : 'Add'}
         </button>
       </form>
+
+      <div className="mt-4">
+        <input
+          type="text"
+          placeholder="Search by name"
+          title="Search guest by name"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="border p-2 w-full"
+        />
+      </div>
       
       {loading ? (
-        <div className="my-2 text-center">Loading...</div>
+        <div className="mb-2 text-center">Loading...</div>
       ) : (
         <ul>
           {guests.length === 0 ? (
