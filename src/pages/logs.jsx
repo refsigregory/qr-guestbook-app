@@ -3,6 +3,7 @@ import withAuth from '@/components/withAuth';
 import { useEffect, useState } from 'react';
 
 function Logs() {
+  const [loading, setLoading] = useState(false);
   const [logs, setLogs] = useState([]);
   const [filteredLogs, setFilteredLogs] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -12,6 +13,7 @@ function Logs() {
 
   const fetchLogs = async () => {
     try {
+      setLoading(true);
       const res = await fetch('/api/logs');
       if (!res.ok) {
         throw new Error('Failed to fetch logs');
@@ -22,6 +24,7 @@ function Logs() {
     } catch (error) {
       console.error('Error fetching logs:', error);
     }
+    setLoading(false);
   };
 
   const handleDelete = async () => {
@@ -89,48 +92,52 @@ function Logs() {
         />
         <button className="text-sm bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-2 border border-gray-400 rounded shadow" onClick={fetchLogs}>Refresh</button>
       </div>
-
-      <ul className="mt-4">
-        {filteredLogs.length === 0 ? (
-          <li>No logs available.</li>
-        ) : (
-          filteredLogs.map((log) => (
-            <li key={log.id} className="border bg-white p-5 mb-2 flex justify-between items-center hover:bg-gray-100">
-              <div>
-                <div className="text-xs text-blue-600">
-                  {
-                    new Date(log.createdAt).toLocaleString('id-ID', {
-                        timeZone: 'Asia/Makassar',
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: 'numeric',
-                        minute: 'numeric', 
-                        hour12: false
-                      })
-                    }
+      {
+        loading ?
+          <div className="text-center mt-2">Loading...</div>
+          :
+        (<ul className="mt-4">
+          {filteredLogs.length === 0 ? (
+            <li>No logs available.</li>
+          ) : (
+            filteredLogs.map((log) => (
+              <li key={log.id} className="border bg-white p-5 mb-2 flex justify-between items-center hover:bg-gray-100">
+                <div>
+                  <div className="text-xs text-blue-600">
+                    {
+                      new Date(log.createdAt).toLocaleString('id-ID', {
+                          timeZone: 'Asia/Makassar',
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric', 
+                          hour12: false
+                        })
+                      }
+                    </div>
+                  <div className="font-extrabold text-md">{log.guest.name} - {log?.status}</div>
+                  <div className="text-xs">
+                    <span className="italic">{log.accessCode}</span> {log?.codeNumber ? (log?.codeNumber > 1 ? ` (${log?.codeNumber})` : ' (Primary)') : ' (Invalid/Deleted Code)'}
                   </div>
-                <div className="font-extrabold text-md">{log.guest.name} - {log?.status}</div>
-                <div className="text-xs">
-                  {log.accessCode}
                 </div>
-              </div>
-              <div>
-                <button
-                  onClick={() => {
-                    setLogToDelete(log.id);
-                    setIsModalOpen(true);
-                  }}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  Delete
-                </button>
-              </div>
-            </li>
-          ))
-        )}
-      </ul>
+                <div>
+                  <button
+                    onClick={() => {
+                      setLogToDelete(log.id);
+                      setIsModalOpen(true);
+                    }}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </li>
+            ))
+          )}
+        </ul>)
+      }
 
       <ConfirmationModal
         isOpen={isModalOpen}
