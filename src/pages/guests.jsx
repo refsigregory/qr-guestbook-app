@@ -24,7 +24,7 @@ function Guests() {
 
   useEffect(() => {
     setPage(1);
-  }, [limit]);
+  }, [limit, search]);
 
   const fetchGuests = async () => {
     setLoading(true);
