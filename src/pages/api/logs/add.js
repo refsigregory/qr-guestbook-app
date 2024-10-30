@@ -44,9 +44,9 @@ export default async function handler(req, res) {
       });
 
       let codeNumber = null;
-      let rank = 0; 
+      let rank = 1; 
       dataAccessCode?.forEach(async (obj) => {
-        if (obj.code === foundCode.code) {
+        if (obj.code === foundCode.code && rank !== 1) {
           codeNumber = rank;
         }
         rank++;
