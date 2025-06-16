@@ -19,26 +19,26 @@ function Guests() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
+    const fetchGuests = async () => {
+      setLoading(true);
+      const res = await fetch(`/api/guests?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`);
+      const data = await res.json();
+      if (res.ok) {
+        setGuests(data?.data);
+        setTotalGuests(data.pagination.totalGuests); // Set total guests for pagination
+        generateQRCodes(data?.data); // Generate QR codes when guests are fetched
+      } else {
+        alert('Failed to fetch guests.');
+      }
+      setLoading(false);
+    };
+
     fetchGuests();
   }, [page, limit, search]); // Fetch guests whenever page, limit, or search changes
 
   useEffect(() => {
     setPage(1);
   }, [limit, search]);
-
-  const fetchGuests = async () => {
-    setLoading(true);
-    const res = await fetch(`/api/guests?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`);
-    const data = await res.json();
-    if (res.ok) {
-      setGuests(data?.data);
-      setTotalGuests(data.pagination.totalGuests); // Set total guests for pagination
-      generateQRCodes(data?.data); // Generate QR codes when guests are fetched
-    } else {
-      alert('Failed to fetch guests.');
-    }
-    setLoading(false);
-  };
 
   const generateQRCodes = async (guestList) => {
     const urls = {};
