@@ -1,5 +1,5 @@
 # Use Node.js LTS image
-FROM node:20-alpine
+FROM node:20.11.1-alpine3.19
 
 # Install dependencies for bcrypt and other native modules
 RUN apk add --no-cache python3 make g++
