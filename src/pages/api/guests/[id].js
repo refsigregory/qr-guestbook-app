@@ -19,22 +19,14 @@ export default async function handler(req, res) {
       });
     } else if (req.method === 'DELETE') {
         
-      const logs = await prisma.logs.findMany({
+      // Delete related logs first
+      await prisma.logs.deleteMany({
         where: { guestId: parseInt(id) },
-      });
-      logs?.map(async (obj) => {
-          await prisma.logs.delete({
-        where: { id: parseInt(obj.id) }
-      })
       });
         
-      const accessCode = await prisma.accessCode.findMany({
+      // Delete related access codes
+      await prisma.accessCode.deleteMany({
         where: { guestId: parseInt(id) },
-      });
-      accessCode?.map(async (obj) => {
-          await prisma.accessCode.delete({
-        where: { id: parseInt(obj.id) }
-      })
       });
       
       // Delete the guest
