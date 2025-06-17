@@ -1,5 +1,5 @@
 import withAuth from '@/components/withAuth';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import QRCode from 'qrcode';
 
 function Guests() {
@@ -18,23 +18,23 @@ function Guests() {
   const [totalGuests, setTotalGuests] = useState(0);
   const [search, setSearch] = useState('');
 
-  useEffect(() => {
-    const fetchGuests = async () => {
-      setLoading(true);
-      const res = await fetch(`/api/guests?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`);
-      const data = await res.json();
-      if (res.ok) {
-        setGuests(data?.data);
-        setTotalGuests(data.pagination.totalGuests); // Set total guests for pagination
-        generateQRCodes(data?.data); // Generate QR codes when guests are fetched
-      } else {
-        alert('Failed to fetch guests.');
-      }
-      setLoading(false);
-    };
+  const fetchGuests = useCallback(async () => {
+    setLoading(true);
+    const res = await fetch(`/api/guests?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`);
+    const data = await res.json();
+    if (res.ok) {
+      setGuests(data?.data);
+      setTotalGuests(data.pagination.totalGuests); // Set total guests for pagination
+      generateQRCodes(data?.data); // Generate QR codes when guests are fetched
+    } else {
+      alert('Failed to fetch guests.');
+    }
+    setLoading(false);
+  }, [page, limit, search]);
 
+  useEffect(() => {
     fetchGuests();
-  }, [page, limit, search]); // Fetch guests whenever page, limit, or search changes
+  }, [fetchGuests]); // Now fetchGuests is properly memoized
 
   useEffect(() => {
     setPage(1);
